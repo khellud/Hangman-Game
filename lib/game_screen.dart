@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'constant/consts.dart';
+import 'game/figure_widget.dart';
+import 'game/game_letters.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -11,6 +13,9 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   var charac = "abcdefghijklmnopqrstuvwxyz".toUpperCase();
+  var word = "baaba".toUpperCase();
+  List<String> selectedChar = [];
+  var tries = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +34,33 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 Expanded(
                   flex: 4,
-                  child: Container(
-                    color: Colors.amber,
+                  child: Stack(
+                    children: [
+                      figure(GameUI.hang, tries >= 0),
+                      figure(GameUI.head, tries >= 1),
+                      figure(GameUI.body, tries >= 2),
+                      figure(GameUI.leftArm, tries >= 3),
+                      figure(GameUI.rightArm, tries >= 4),
+                      figure(GameUI.leftLeg, tries >= 5),
+                      figure(GameUI.rightLeg, tries >= 6),
+                    ],
                   ),
                 ),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: word
+                          .split("")
+                          .map(
+                            (e) => hiddenLetters(
+                              e,
+                              !selectedChar.contains(e.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
                 ),
               ],
@@ -55,7 +80,16 @@ class _GameScreenState extends State<GameScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black38,
                     ),
-                    onPressed: () {},
+                    onPressed: selectedChar.contains(e.toUpperCase())
+                        ? null
+                        : () {
+                            setState(() {
+                              selectedChar.add(e.toUpperCase());
+                              if (!word.split("").contains(e.toUpperCase())) {
+                                tries++;
+                              }
+                            });
+                          },
                     child: Text(
                       e,
                       style: const TextStyle(
